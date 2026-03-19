@@ -4,8 +4,19 @@
     <!-- Header Mobile -->
     <header class="h-16 shrink-0 flex items-center justify-between px-6 border-b border-white/5">
         <div class="flex items-center gap-3">
-            <span class="text-3xl animate-pulse">🍳</span>
+            <button onclick="confirm('Se déconnecter de la cuisine ?') && @this.logout()" 
+                    class="h-10 w-10 flex items-center justify-center rounded-full bg-red-600/10 border border-red-500/20 text-red-500 hover:bg-red-600 hover:text-white transition-all active:scale-95"
+                    title="Déconnexion">
+                <span class="text-xs font-black">⏻</span>
+            </button>
             <h1 class="text-xl font-black uppercase tracking-tighter italic leading-none">Cuisine</h1>
+
+            @if(session('pos_authenticated'))
+                <a href="{{ route('home') }}" class="ml-2 flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all group">
+                    <span class="text-[0.6rem] font-black uppercase tracking-widest opacity-40 group-hover:opacity-100">Caisse</span>
+                    <span class="text-xs">🖥️</span>
+                </a>
+            @endif
         </div>
         <div class="bg-orange-600 px-4 py-1.5 rounded-full shadow-lg shadow-orange-600/20 flex items-center gap-2">
             <span class="text-xs font-black tabular-nums">{{ count($pendingOrders) }}</span>

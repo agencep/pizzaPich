@@ -8,9 +8,14 @@
     <!-- COMPACT HEADER -->
     <header class="glass h-14 shrink-0 flex items-center justify-between px-4 z-20 border-b border-white/10">
         <div class="flex items-center gap-3">
-            <button wire:click="openSettings" class="text-lg opacity-40 hover:opacity-100 transition-opacity">⚙️</button>
             <h1 class="text-lg font-black tracking-tighter uppercase italic">PIZZA <span class="text-red-600">PICH'</span></h1>
             
+            <!-- Interface Switch -->
+            <a href="{{ route('kitchen') }}" class="ml-2 flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all group">
+                <span class="text-[0.6rem] font-black uppercase tracking-widest opacity-40 group-hover:opacity-100">Cuisine</span>
+                <span class="text-xs">👨‍🍳</span>
+            </a>
+
             <!-- ETD Indicator -->
             <div class="ml-4 flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full border border-white/5">
                 <span class="text-[0.5rem] font-black text-white/40 uppercase tracking-widest">Attente Estimée:</span>
@@ -18,7 +23,20 @@
             </div>
         </div>
         
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-3">
+            <!-- Settings Button -->
+            <button wire:click="openSettings" 
+                    class="h-8 w-8 flex items-center justify-center rounded-full bg-white/5 border border-white/10 opacity-60 hover:opacity-100 hover:bg-white/10 transition-all active:scale-95"
+                    title="Paramètres">
+                <span class="text-sm">⚙️</span>
+            </button>
+
+            <!-- Logout Button -->
+            <button onclick="confirm('Se déconnecter de la caisse ?') && @this.logout()" 
+                    class="h-8 w-8 flex items-center justify-center rounded-full bg-red-600/10 border border-red-500/20 text-red-500 hover:bg-red-600 hover:text-white transition-all active:scale-95"
+                    title="Déconnexion">
+                <span class="text-xs font-black">⏻</span>
+            </button>
             <!-- Distribution Button -->
             @if(count($readyOrders) > 0)
                 <button @click="showDistribution = true" 

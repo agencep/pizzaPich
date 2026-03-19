@@ -287,7 +287,7 @@ class PosPizza extends Component
         $received = (float) $received;
 
         // Save to Database
-        Order::create([
+        $order = Order::create([
             'total' => $this->total,
             'received' => $received,
             'change' => $received - $this->total,
@@ -297,6 +297,10 @@ class PosPizza extends Component
 
         $change = $received - $this->total;
         $this->lastChange = ($change > 0.001) ? $change : null;
+
+        // Notify Cuisine
+        $kitchenUsers = \App\Models\User::where('role', 'Cuisine')->get();
+        \Illuminate\Support\Facades\Notification::send($kitchenUsers, new \App\Notifications\NewOrderNotification($order));
         
         // Reset Cart
         $this->cart = [];
@@ -310,6 +314,12 @@ class PosPizza extends Component
     public function resetChange()
     {
         $this->lastChange = null;
+    }
+
+    public function logout()
+    {
+        session()->forget(['pos_authenticated', 'kitchen_authenticated']);
+        return redirect()->route('login');
     }
 
     public function render()

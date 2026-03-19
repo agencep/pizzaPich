@@ -1,16 +1,15 @@
 <?php
 
+use App\Livewire\AuthLogin;
+use App\Livewire\KitchenView;
+use App\Livewire\PosPizza;
 use Illuminate\Support\Facades\Route;
 
-use App\Livewire\PosPizza;
-use App\Livewire\KitchenView;
+Route::get('login', AuthLogin::class)->name('login');
 
-Route::get('/', PosPizza::class)->name('home');
-Route::get('pos', PosPizza::class)->name('pos');
-Route::get('pizzaiolo', KitchenView::class)->name('kitchen');
-
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('dashboard', 'dashboard')->name('dashboard');
+Route::middleware(['pos.auth'])->group(function () {
+    Route::get('/', PosPizza::class)->name('home');
+    Route::get('pos', PosPizza::class)->name('pos');
+    Route::get('pizzaiolo', KitchenView::class)->name('kitchen');
+    Route::post('/push-subscriptions', [App\Http\Controllers\PushSubscriptionController::class, 'store'])->name('push.subscriptions.store');
 });
-
-require __DIR__.'/settings.php';
