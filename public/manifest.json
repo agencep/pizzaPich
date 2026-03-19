@@ -1,0 +1,25 @@
+{
+    "name": "Pizza Pich' POS",
+    "short_name": "PizzaPich",
+    "description": "Modern Pizza Point of Sale System",
+    "background_color": "#050505",
+    "theme_color": "#dc2626",
+    "display": "standalone",
+    "orientation": "portrait",
+    "start_url": "/",
+    "scope": "/",
+    "icons": [
+        {
+            "src": "/pwa-icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/pwa-icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
