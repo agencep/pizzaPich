@@ -7,8 +7,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('login', AuthLogin::class)->name('login');
 
-Route::middleware(['pos.auth'])->group(function () {
-    Route::get('/', PosPizza::class)->name('home');
-    Route::get('pos', PosPizza::class)->name('pos');
-    Route::get('pizzaiolo', KitchenView::class)->name('kitchen');
-});
+Route::get('/', PosPizza::class)->name('home');
+Route::get('pos', PosPizza::class)->name('pos');
+Route::get('pizzaiolo', KitchenView::class)->name('kitchen');
