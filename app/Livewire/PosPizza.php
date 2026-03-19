@@ -297,10 +297,6 @@ class PosPizza extends Component
 
         $change = $received - $this->total;
         $this->lastChange = ($change > 0.001) ? $change : null;
-
-        // Notify Cuisine
-        $kitchenUsers = \App\Models\User::where('role', 'Cuisine')->get();
-        \Illuminate\Support\Facades\Notification::send($kitchenUsers, new \App\Notifications\NewOrderNotification($order));
         
         // Reset Cart
         $this->cart = [];

@@ -11,5 +11,4 @@ Route::middleware(['pos.auth'])->group(function () {
     Route::get('/', PosPizza::class)->name('home');
     Route::get('pos', PosPizza::class)->name('pos');
     Route::get('pizzaiolo', KitchenView::class)->name('kitchen');
-    Route::post('/push-subscriptions', [App\Http\Controllers\PushSubscriptionController::class, 'store'])->name('push.subscriptions.store');
 });

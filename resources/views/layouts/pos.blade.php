@@ -63,68 +63,6 @@
             });
         }
 
-        // PWA Check (Standalone mode)
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
-        // Push Notifications
-        async function subscribeUser() {
-            if ('serviceWorker' in navigator && 'PushManager' in window) {
-                try {
-                    const registration = await navigator.serviceWorker.ready;
-                    const subscription = await registration.pushManager.subscribe({
-                        userVisibleOnly: true,
-                        applicationServerKey: urlBase64ToUint8Array('{{ env("VAPID_PUBLIC_KEY") }}')
-                    });
-
-                    await fetch('{{ route("push.subscriptions.store") }}', {
-                        method: 'POST',
-                        body: JSON.stringify(subscription),
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    });
-                    console.log('User is subscribed.');
-                } catch (err) {
-                    console.log('Failed to subscribe the user: ', err);
-                }
-            }
-        }
-
-        function urlBase64ToUint8Array(base64String) {
-            const padding = '='.repeat((4 - base64String.length % 4) % 4);
-            const base64 = (base64String + padding)
-                .replace(/\-/g, '+')
-                .replace(/_/g, '/');
-            const rawData = window.atob(base64);
-            const outputArray = new Uint8Array(rawData.length);
-            for (let i = 0; i < rawData.length; ++i) {
-                outputArray[i] = rawData.charCodeAt(i);
-            }
-            return outputArray;
-        }
-
-        // Ask for permission and subscribe if granted
-        window.addEventListener('load', () => {
-            if ('Notification' in window && Notification.permission !== 'granted') {
-                // If it's iOS, we can only ask if in standalone mode
-                if (isIOS && !isStandalone) {
-                    console.warn('Notifications on iOS require the app to be added to the home screen.');
-                    return;
-                }
-                
-                // Show a custom UI or just ask
-                Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
-                        subscribeUser();
-                    }
-                });
-            } else if ('Notification' in window && Notification.permission === 'granted') {
-                subscribeUser();
-            }
-        });
-
         // ORIENTATION LOCK ATTEMPT
         async function lockOrientation() {
             if (screen.orientation && screen.orientation.lock) {
