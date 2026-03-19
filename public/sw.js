@@ -1,6 +1,5 @@
 const CACHE_NAME = 'pizza-pos-v1';
 const ASSETS_TO_CACHE = [
-    '/',
     '/manifest.json',
     '/pwa-icon-192.png',
     '/pwa-icon-512.png'
@@ -15,6 +14,15 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+    // Skip non-GET requests
+    if (event.request.method !== 'GET') return;
+
+    // For navigation requests, we might want to let them pass through without SW interference 
+    // if they are likely to redirect (like the login flow)
+    if (event.request.mode === 'navigate') {
+        return;
+    }
+
     event.respondWith(
         caches.match(event.request).then((response) => {
             return response || fetch(event.request);
