@@ -9,16 +9,29 @@ class AuthLogin extends Component
     public $otp = '';
     public $error = '';
 
-    public function updatedOtp($value)
+    public function addDigit($digit)
     {
-        if (strlen($value) >= 8) {
-            $this->login();
+        if (strlen($this->otp) < 8) {
+            $this->otp .= $digit;
+            
+            if (strlen($this->otp) === 8) {
+                $this->login();
+            }
         }
+    }
+
+    public function clearOtp()
+    {
+        $this->otp = '';
+        $this->error = '';
     }
 
     public function login()
     {
-        if ($this->otp === env('POS_OTP', '12345678')) {
+        $posOtp = (string) env('POS_OTP', '51141016');
+        $kitchenOtp = (string) env('KITCHEN_OTP', '29736849');
+
+        if ($this->otp === $posOtp) {
             $user = \App\Models\User::where('role', 'Caisse')->first();
             if ($user) {
                 \Illuminate\Support\Facades\Auth::login($user, true);
@@ -27,7 +40,7 @@ class AuthLogin extends Component
             return redirect()->to(route('home'));
         }
 
-        if ($this->otp === env('KITCHEN_OTP', '00000000')) {
+        if ($this->otp === $kitchenOtp) {
             $user = \App\Models\User::where('role', 'Cuisine')->first();
             if ($user) {
                 \Illuminate\Support\Facades\Auth::login($user, true);
