@@ -27,6 +27,7 @@ class PosPizza extends Component
     public $pendingOrders = [];
     public $readyOrders = [];
     public $estimatedTime = 0; // In minutes
+    public $totalArticlesPending = 0;
     public $settingsTab = 'products'; // 'products', 'stats', 'cash'
 
     // New Product Form State
@@ -39,8 +40,12 @@ class PosPizza extends Component
 
     // Split Pizza State
     public $isSplitting = false;
-    public $splitStep = 0; 
+    public $splitStep = 0;
     public $firstHalf = null;
+
+    // Cancellation State
+    public $cancelOrderId = '';
+    public $recentOrders = [];
 
     public function mount()
     {
@@ -54,7 +59,35 @@ class PosPizza extends Component
     {
         $this->pendingOrders = Order::where('status', 'pending')->orderBy('created_at', 'asc')->get()->toArray();
         $this->readyOrders = Order::where('status', 'ready')->orderBy('created_at', 'asc')->get()->toArray();
-        $this->estimatedTime = (count($this->pendingOrders) * 5) + 5;
+
+        // Count total items instead of just orders for more accurate time estimate
+        $totalItems = 0;
+        foreach ($this->pendingOrders as $order) {
+            foreach ($order['items'] as $item) {
+                $totalItems += $item['quantity'];
+            }
+        }
+        $this->totalArticlesPending = $totalItems;
+        $this->estimatedTime = ($totalItems * 5) + 5;
+    }
+
+    public function cancelOrder($id = null)
+    {
+        $id = $id ?? $this->cancelOrderId;
+        if (!$id) return;
+
+        $order = Order::find($id);
+        if ($order) {
+            $order->status = 'cancelled';
+            $order->save();
+            $this->updateSessionTotal();
+            $this->updatePendingOrders();
+            $this->loadStats();
+            $this->dispatch('notif', message: 'Commande #' . $id . ' annulée');
+            $this->cancelOrderId = '';
+        } else {
+            $this->dispatch('notif', message: 'Commande #' . $id . ' non trouvée');
+        }
     }
 
     public function markAsDelivered($id)
@@ -82,11 +115,24 @@ class PosPizza extends Component
 
     public function loadStats()
     {
-        $today = Carbon::today();
-        $orders = Order::whereDate('created_at', $today)->get();
-        $this->allOrdersCount = $orders->count();
+        $allOrders = Order::orderBy('created_at', 'desc')->get();
+        $orders = $allOrders->where('status', '!=', 'cancelled');
+        // $this->recentOrders = $allOrders->take(10)->toArray();
+        $this->recentOrders = $allOrders->take(100)->toArray();
+
+        // Calculate total items (articles) instead of just order count
+        $totalArticles = 0;
+        foreach ($orders as $order) {
+            foreach ($order->items as $item) {
+                $totalArticles += $item['quantity'];
+            }
+        }
+
+        $this->allOrdersCount = $totalArticles;
         $this->sessionTotal = $orders->sum('total');
-        
+
+        // dd($this->sessionTotal);
+
         $stats = [];
         foreach ($orders as $order) {
             foreach ($order->items as $item) {
@@ -194,13 +240,13 @@ class PosPizza extends Component
     public function selectHalf($index)
     {
         $item = $this->menu[$index];
-        
+
         if ($this->splitStep == 1) {
             $this->firstHalf = $item;
             $this->splitStep = 2;
         } else if ($this->splitStep == 2) {
             $secondHalf = $item;
-            
+
             // Create Split Pizza
             $price = max($this->firstHalf['price'], $secondHalf['price']);
             $name = "1/2 " . $this->firstHalf['name'] . " | 1/2 " . $secondHalf['name'];
@@ -228,7 +274,7 @@ class PosPizza extends Component
 
     public function updateSessionTotal()
     {
-        $this->sessionTotal = Order::whereDate('created_at', Carbon::today())->sum('total');
+        $this->sessionTotal = Order::sum('total');
     }
 
     public function addToCart($itemIndex)
@@ -297,13 +343,14 @@ class PosPizza extends Component
 
         $change = $received - $this->total;
         $this->lastChange = ($change > 0.001) ? $change : null;
-        
+
         // Reset Cart
         $this->cart = [];
         $this->total = 0;
 
         $this->updateSessionTotal();
         $this->updatePendingOrders();
+        $this->loadStats(); // Update statistics after payment
         $this->dispatch('payment-completed');
     }
 
@@ -320,6 +367,7 @@ class PosPizza extends Component
 
     public function render()
     {
+        \Log::info($this->sessionTotal);
         return view('livewire.pos-pizza')->layout('layouts.pos');
     }
 }

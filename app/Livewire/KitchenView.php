@@ -9,6 +9,7 @@ use Carbon\Carbon;
 class KitchenView extends Component
 {
     public $pendingOrders = [];
+    public $estimatedTime = 0;
 
     public function mount()
     {
@@ -21,6 +22,14 @@ class KitchenView extends Component
             ->orderBy('created_at', 'asc')
             ->get()
             ->toArray();
+
+        $totalItems = 0;
+        foreach ($this->pendingOrders as $order) {
+            foreach ($order['items'] as $item) {
+                $totalItems += $item['quantity'];
+            }
+        }
+        $this->estimatedTime = ($totalItems * 5) + 5;
     }
 
     public function markAsReady($id)

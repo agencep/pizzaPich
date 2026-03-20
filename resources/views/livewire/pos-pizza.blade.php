@@ -18,8 +18,10 @@
 
             <!-- ETD Indicator -->
             <div class="ml-4 flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full border border-white/5">
-                <span class="text-[0.5rem] font-black text-white/40 uppercase tracking-widest">Attente Estimée:</span>
-                <span class="text-xs font-black text-orange-500 tabular-nums">{{ $estimatedTime }} min</span>
+                <span class="text-[0.5rem] font-black text-white/40 uppercase tracking-widest leading-none">Attente Estimée:</span>
+                <span class="text-xs font-black text-orange-500 tabular-nums leading-none">{{ $estimatedTime }} min</span>
+                <span class="w-[1px] h-3 bg-white/10 mx-1"></span>
+                <span class="text-[0.5rem] font-black text-white/30 uppercase tracking-widest leading-none">{{ $totalArticlesPending }} art.</span>
             </div>
         </div>
         
@@ -153,6 +155,10 @@
             <div class="flex items-center gap-3">
                 <span class="text-2xl">🍳</span>
                 <h2 class="text-xl font-black uppercase tracking-tighter italic">En préparation (Cuisine)</h2>
+                <div class="ml-4 flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full border border-white/5">
+                    <span class="text-[0.6rem] font-black text-white/40 uppercase tracking-widest">Articles:</span>
+                    <span class="text-xs font-black text-orange-500 tabular-nums">{{ $totalArticlesPending }}</span>
+                </div>
             </div>
             <button @click="showKitchen = false" class="px-8 py-3 bg-white/5 rounded-full text-xs font-black uppercase tracking-widest border border-white/10 active:scale-95">Fermer</button>
         </header>
@@ -318,7 +324,7 @@
                     <div class="flex justify-between items-end mb-8">
                         <div>
                             <h3 class="text-[0.7rem] font-black text-white/40 uppercase tracking-[0.5em] mb-2">Rapport des ventes</h3>
-                            <p class="text-4xl font-black tracking-tighter tabular-nums">{{ $allOrdersCount }} <span class="text-sm uppercase text-white/20 tracking-normal ml-2">Commandes aujourd'hui</span></p>
+                            <p class="text-4xl font-black tracking-tighter tabular-nums">{{ $allOrdersCount }} <span class="text-sm uppercase text-white/20 tracking-normal ml-2">Articles vendus aujourd'hui</span></p>
                         </div>
                         <div class="text-right">
                             <p class="text-[0.6rem] font-black text-white/40 uppercase tracking-widest mb-1">Chiffre d'affaires</p>
@@ -326,34 +332,94 @@
                         </div>
                     </div>
 
-                    <div class="glass rounded-[2.5rem] overflow-hidden border-white/5">
-                        <table class="w-full text-left">
-                            <thead class="bg-white/5 text-[0.6rem] font-black uppercase text-white/40 border-b border-white/5">
-                                <tr>
-                                    <th class="px-8 py-6 uppercase tracking-[0.2em]">Article</th>
-                                    <th class="px-8 py-6 text-center uppercase tracking-[0.2em]">Quantité</th>
-                                    <th class="px-8 py-6 text-right uppercase tracking-[0.2em]">Total (TND)</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-white/5">
-                                @foreach($productStats as $name => $data)
-                                <tr class="hover:bg-white/[0.02] transition-colors">
-                                    <td class="px-8 py-5 text-sm font-black uppercase tracking-tight">{{ $name }}</td>
-                                    <td class="px-8 py-5 text-center font-black tabular-nums scale-110">
-                                        <span class="inline-block px-3 py-1 bg-white/5 rounded-lg border border-white/5">{{ $data['qty'] }}</span>
-                                    </td>
-                                    <td class="px-8 py-5 text-right font-black tabular-nums text-red-500 text-lg">{{ number_format($data['total'], 3) }}</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                            <tfoot class="bg-black/40 border-t-2 border-red-600/20">
-                                <tr>
-                                    <td class="px-8 py-8 font-black uppercase text-sm italic">TOTAL GÉNÉRAL</td>
-                                    <td class="px-8 py-8"></td>
-                                    <td class="px-8 py-8 text-right font-black text-3xl tabular-nums tracking-tighter">{{ number_format($sessionTotal, 3) }}</td>
-                                </tr>
-                            </tfoot>
-                        </table>
+                    <!-- CANCEL BY ID -->
+                    <div class="glass p-6 rounded-3xl border-white/5 bg-zinc-900/50 mb-8 flex items-center gap-4">
+                        <div class="grow">
+                            <label class="block text-[0.5rem] font-black uppercase text-white/30 mb-2">Annuler une commande par N°</label>
+                            <input wire:model="cancelOrderId" type="text" placeholder="Ex: 123" 
+                                   class="w-full bg-black/40 border-2 border-white/5 rounded-2xl px-5 py-3 text-sm font-bold focus:border-red-600 outline-none transition-all">
+                        </div>
+                        <button wire:click="cancelOrder" 
+                                class="px-8 py-3 bg-red-600 rounded-2xl text-[0.6rem] font-black uppercase mt-6 active:scale-95 transition-all">
+                            Valider l'annulation
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-[0.7rem] font-black text-white/40 uppercase tracking-[0.5em] mb-4">Par Article</h3>
+                            <div class="glass rounded-[2.5rem] overflow-hidden border-white/5">
+                                <table class="w-full text-left">
+                                    <thead class="bg-white/5 text-[0.6rem] font-black uppercase text-white/40 border-b border-white/5">
+                                        <tr>
+                                            <th class="px-8 py-6 uppercase tracking-[0.2em]">Article</th>
+                                            <th class="px-8 py-6 text-center uppercase tracking-[0.2em]">Quantité</th>
+                                            <th class="px-8 py-6 text-right uppercase tracking-[0.2em]">Total (TND)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-white/5">
+                                        @foreach($productStats as $name => $data)
+                                        <tr class="hover:bg-white/2 transition-colors">
+                                            <td class="px-8 py-5 text-sm font-black uppercase tracking-tight">{{ $name }}</td>
+                                            <td class="px-8 py-5 text-center font-black tabular-nums scale-110">
+                                                <span class="inline-block px-3 py-1 bg-white/5 rounded-lg border border-white/5">{{ $data['qty'] }}</span>
+                                            </td>
+                                            <td class="px-8 py-5 text-right font-black tabular-nums text-red-500 text-lg">{{ number_format($data['total'], 3) }}</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                    <tfoot class="bg-black/40 border-t-2 border-red-600/20">
+                                        <tr>
+                                            <td class="px-8 py-8 font-black uppercase text-sm italic">TOTAL</td>
+                                            <td class="px-8 py-8"></td>
+                                            <td class="px-8 py-8 text-right font-black text-2xl tabular-nums tracking-tighter">{{ number_format($sessionTotal, 3) }}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-[0.7rem] font-black text-white/40 uppercase tracking-[0.5em] mb-4">Dernières Commandes</h3>
+                            <div class="glass rounded-[2.5rem] overflow-hidden border-white/5">
+                                <table class="w-full text-left">
+                                    <thead class="bg-white/5 text-[0.6rem] font-black uppercase text-white/40 border-b border-white/5">
+                                        <tr>
+                                            <th class="px-6 py-4 uppercase tracking-[0.2em]">N°</th>
+                                            <th class="px-6 py-4 uppercase tracking-[0.2em]">Heure</th>
+                                            <th class="px-6 py-4 uppercase tracking-[0.2em]">Status</th>
+                                            <th class="px-6 py-4 text-right uppercase tracking-[0.2em]">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-white/5">
+                                        @foreach($recentOrders as $order)
+                                        <tr class="hover:bg-white/[0.02] transition-colors {{ $order['status'] === 'cancelled' ? 'opacity-30 grayscale' : '' }}">
+                                            <td class="px-6 py-4 text-xs font-black">#{{ $order['id'] }}</td>
+                                            <td class="px-6 py-4 text-[0.6rem] font-bold text-white/40">{{ \Carbon\Carbon::parse($order['created_at'])->format('H:i') }}</td>
+                                            <td class="px-6 py-4">
+                                                <span class="px-2 py-0.5 rounded-full text-[0.4rem] font-black uppercase tracking-widest
+                                                    {{ $order['status'] === 'pending' ? 'bg-orange-600/20 text-orange-500' : '' }}
+                                                    {{ $order['status'] === 'ready' ? 'bg-blue-600/20 text-blue-500' : '' }}
+                                                    {{ $order['status'] === 'delivered' ? 'bg-green-600/20 text-green-500' : '' }}
+                                                    {{ $order['status'] === 'cancelled' ? 'bg-red-600/20 text-red-500' : '' }}
+                                                ">
+                                                    {{ $order['status'] }}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 text-right">
+                                                @if($order['status'] !== 'cancelled')
+                                                    <button onclick="confirm('Annuler la commande #{{ $order['id'] }} ?') && @this.cancelOrder({{ $order['id'] }})"
+                                                            class="p-2 bg-red-600/10 text-red-500 hover:bg-red-600 hover:text-white rounded-lg transition-all active:scale-90">
+                                                        🗑️
+                                                    </button>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </section>
             @endif
@@ -466,6 +532,14 @@
             <p class="mt-8 text-[0.6rem] font-black uppercase tracking-widest bg-black/10 px-8 py-4 rounded-full text-black/60 italic">Tap pour continuer</p>
         </div>
     @endif
+
+    <!-- NOTIFICATION -->
+    <div x-data="{ show: false, message: '' }" 
+         @notif.window="message = $event.detail.message; show = true; setTimeout(() => show = false, 3000)"
+         x-show="show" x-cloak
+         class="fixed bottom-10 left-1/2 -translate-x-1/2 z-200 px-8 py-4 bg-white text-black rounded-full font-black text-xs uppercase tracking-widest shadow-2xl animate-in fade-in slide-in-from-bottom-5">
+        <span x-text="message"></span>
+    </div>
 
     <script>
         function posView() {

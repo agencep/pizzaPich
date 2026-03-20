@@ -18,9 +18,15 @@
                 </a>
             @endif
         </div>
-        <div class="bg-orange-600 px-4 py-1.5 rounded-full shadow-lg shadow-orange-600/20 flex items-center gap-2">
-            <span class="text-xs font-black tabular-nums">{{ count($pendingOrders) }}</span>
-            <span class="text-[0.6rem] font-black uppercase tracking-widest">En cours</span>
+        <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/5">
+                <span class="text-[0.6rem] font-black text-white/40 uppercase tracking-widest leading-none">Attente:</span>
+                <span class="text-xs font-black text-orange-500 tabular-nums leading-none">{{ $estimatedTime }} min</span>
+            </div>
+            <div class="bg-orange-600 px-4 py-1.5 rounded-full shadow-lg shadow-orange-600/20 flex items-center gap-2">
+                <span class="text-xs font-black tabular-nums leading-none">{{ count($pendingOrders) }}</span>
+                <span class="text-[0.6rem] font-black uppercase tracking-widest leading-none">Com.</span>
+            </div>
         </div>
     </header>
 
