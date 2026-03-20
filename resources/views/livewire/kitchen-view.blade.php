@@ -35,15 +35,18 @@
         @forelse($pendingOrders as $order)
             <div class="w-[85vw] md:w-[400px] h-full shrink-0 flex flex-col bg-zinc-900 rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden snap-center animate-in slide-in-from-right-10 duration-300">
                 <!-- Card Header -->
-                <div class="p-6 bg-orange-600 flex justify-between items-center text-black shrink-0 shadow-lg">
+                <div class="py-4 px-6 bg-orange-600 flex justify-between items-center text-black shrink-0 shadow-lg">
                     <div>
                         <p class="text-[0.6rem] font-bold uppercase opacity-60 text-black/70">Commande #{{ $order['id'] }}</p>
                         <p class="text-xs font-black tabular-nums leading-none mt-1">
                             {{ \Carbon\Carbon::parse($order['created_at'])->format('H:i') }} 
-                            <span class="ml-1 opacity-50 text-[0.6rem]">({{ \Carbon\Carbon::parse($order['created_at'])->diffForHumans() }})</span>
                         </p>
                     </div>
-                    <span class="text-2xl">🔥</span>
+
+                    <button wire:click="markAsReady({{ $order['id'] }})"
+                            class="bg-green-600 text-white px-6 py-2.5 rounded-full font-black text-xs uppercase tracking-tighter active:scale-95 transition-all shadow-xl border border-black/10">
+                        Prêt(e) ✅
+                    </button>
                 </div>
 
                 <!-- Articles -->
@@ -61,13 +64,6 @@
                     @endforeach
                 </div>
 
-                <!-- Action Button -->
-                <div class="p-6 pt-0 shrink-0">
-                    <button wire:click="markAsReady({{ $order['id'] }})"
-                            class="w-full bg-green-600 py-8 rounded-3xl font-black text-2xl uppercase tracking-tighter shadow-2xl shadow-green-600/30 active:scale-[0.98] transition-all flex items-center justify-center gap-4 leading-none text-black">
-                        <span>Prêt(e) ✅</span>
-                    </button>
-                </div>
             </div>
         @empty
             <div class="w-full h-full flex flex-col items-center justify-center opacity-10">
