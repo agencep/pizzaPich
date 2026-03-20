@@ -73,9 +73,11 @@
         @endforelse
     </div>
 
-    <!-- Notification system -->
+    <!-- Notification system & Audio -->
+    <audio x-ref="orderAudio" src="/audio/bottles.mp3" preload="auto"></audio>
     <div x-data="{ show: false, message: '' }" 
          @notif.window="message = $event.detail.message; show = true; setTimeout(() => show = false, 3000)"
+         @play-sound.window="$refs.orderAudio.play().catch(e => console.log('Audio error:', e))"
          x-show="show" x-cloak
          class="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 px-8 py-4 bg-white text-black rounded-full font-black text-xs uppercase tracking-widest shadow-2xl animate-in fade-in slide-in-from-bottom-5">
         <span x-text="message"></span>

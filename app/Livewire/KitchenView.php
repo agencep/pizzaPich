@@ -10,18 +10,28 @@ class KitchenView extends Component
 {
     public $pendingOrders = [];
     public $estimatedTime = 0;
+    public $lastOrderCount = 0;
 
     public function mount()
     {
-        $this->updatePendingOrders();
+        $this->updatePendingOrders(true);
     }
 
-    public function updatePendingOrders()
+    public function updatePendingOrders($isMount = false)
     {
         $this->pendingOrders = Order::where('status', 'pending')
             ->orderBy('created_at', 'asc')
             ->get()
             ->toArray();
+
+        $currentCount = count($this->pendingOrders);
+
+        // If not initial mount and count increased, play sound
+        if (!$isMount && $currentCount > $this->lastOrderCount) {
+            $this->dispatch('play-sound');
+        }
+        
+        $this->lastOrderCount = $currentCount;
 
         $totalItems = 0;
         foreach ($this->pendingOrders as $order) {
