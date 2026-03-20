@@ -1,5 +1,9 @@
 <div wire:poll.3s="updatePendingOrders" 
+     x-data
+     @play-sound.window="$refs.kitchenAudio.play().catch(e => alert('Erreur Audio. Cliquez n\'importe où sur la page pour autoriser le son.'))"
      class="h-screen bg-[#050505] text-white flex flex-col overflow-hidden select-none touch-pan-x">
+    
+    <audio x-ref="kitchenAudio" src="/audio/bottles.mp3" preload="auto"></audio>
     
     <!-- Header Mobile -->
     <header class="h-16 shrink-0 flex items-center justify-between px-6 border-b border-white/5">
@@ -73,11 +77,9 @@
         @endforelse
     </div>
 
-    <!-- Notification system & Audio -->
-    <audio x-ref="orderAudio" src="/audio/bottles.mp3" preload="auto"></audio>
+    <!-- Notification system -->
     <div x-data="{ show: false, message: '' }" 
          @notif.window="message = $event.detail.message; show = true; setTimeout(() => show = false, 3000)"
-         @play-sound.window="$refs.orderAudio.play().catch(e => console.log('Audio error:', e))"
          x-show="show" x-cloak
          class="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 px-8 py-4 bg-white text-black rounded-full font-black text-xs uppercase tracking-widest shadow-2xl animate-in fade-in slide-in-from-bottom-5">
         <span x-text="message"></span>
