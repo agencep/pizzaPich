@@ -1,9 +1,24 @@
 <div wire:poll.3s="updatePendingOrders" 
-     x-data
-     @play-sound.window="$refs.kitchenAudio.play().catch(e => alert('Erreur Audio. Cliquez n\'importe où sur la page pour autoriser le son.'))"
-     class="h-screen bg-[#050505] text-white flex flex-col overflow-hidden select-none touch-pan-x">
+     x-data="{ showNewOrderAlert: false }"
+     @new-order-alert.window="showNewOrderAlert = true; setTimeout(() => showNewOrderAlert = false, 4000)"
+     class="h-screen bg-[#050505] text-white flex flex-col overflow-hidden select-none touch-pan-x relative">
     
-    <audio x-ref="kitchenAudio" src="/audio/bottles.mp3" preload="auto"></audio>
+    <!-- New Order Flash Overlay -->
+    <div x-show="showNewOrderAlert" x-cloak
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100"
+         x-transition:leave="transition ease-in duration-500"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-100 pointer-events-none flex items-center justify-center bg-orange-600/20 backdrop-blur-sm border-16 border-orange-500">
+         
+         <div class="bg-[#050505] border-4 border-orange-500 rounded-[3rem] px-16 py-10 shadow-[0_0_150px_rgba(249,115,22,1)] animate-bounce text-center">
+             <h2 class="text-orange-500 text-6xl md:text-8xl font-black uppercase tracking-tighter italic drop-shadow-xl flex items-center gap-4">
+                <span>🔥</span> NOUVELLE COMMANDE <span>🔥</span>
+             </h2>
+         </div>
+    </div>
     
     <!-- Header Mobile -->
     <header class="h-16 shrink-0 flex items-center justify-between px-6 border-b border-white/5">

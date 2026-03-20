@@ -26,9 +26,9 @@ class KitchenView extends Component
 
         $currentCount = count($this->pendingOrders);
 
-        // If not initial mount and count increased, play sound
+        // If not initial mount and count increased, display alert
         if (!$isMount && $currentCount > $this->lastOrderCount) {
-            $this->dispatch('play-sound');
+            $this->dispatch('new-order-alert');
         }
         
         $this->lastOrderCount = $currentCount;
