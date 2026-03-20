@@ -44,7 +44,7 @@
                     </div>
 
                     <button wire:click="markAsReady({{ $order['id'] }})"
-                            class="bg-green-600 text-white px-6 py-2.5 rounded-full font-black text-xs uppercase tracking-tighter active:scale-95 transition-all shadow-xl border border-black/10">
+                            class="bg-green-600 text-white px-10 py-5 rounded-full font-black text-lg uppercase tracking-tighter active:scale-95 transition-all shadow-xl border border-black/10">
                         Prêt(e) ✅
                     </button>
                 </div>
