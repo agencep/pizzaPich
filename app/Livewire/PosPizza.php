@@ -22,6 +22,7 @@ class PosPizza extends Component
     public $showSettings = false;
     public $initialCash = 0;
     public $allOrdersCount = 0;
+    public $deliveredArticlesCount = 0;
     public $productStats = [];
     public $managedProducts = [];
     public $pendingOrders = [];
@@ -122,13 +123,18 @@ class PosPizza extends Component
 
         // Calculate total items (articles) instead of just order count
         $totalArticles = 0;
+        $deliveredArticles = 0;
         foreach ($orders as $order) {
             foreach ($order->items as $item) {
                 $totalArticles += $item['quantity'];
+                if ($order->status === 'delivered') {
+                    $deliveredArticles += $item['quantity'];
+                }
             }
         }
 
         $this->allOrdersCount = $totalArticles;
+        $this->deliveredArticlesCount = $deliveredArticles;
         $this->sessionTotal = $orders->sum('total');
 
         // dd($this->sessionTotal);

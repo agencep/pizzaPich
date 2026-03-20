@@ -324,7 +324,10 @@
                     <div class="flex justify-between items-end mb-8">
                         <div>
                             <h3 class="text-[0.7rem] font-black text-white/40 uppercase tracking-[0.5em] mb-2">Rapport des ventes</h3>
-                            <p class="text-4xl font-black tracking-tighter tabular-nums">{{ $allOrdersCount }} <span class="text-sm uppercase text-white/20 tracking-normal ml-2">Articles vendus aujourd'hui</span></p>
+                            <div class="flex items-baseline gap-4">
+                                <p class="text-4xl font-black tracking-tighter tabular-nums">{{ $allOrdersCount }} <span class="text-xs uppercase text-white/20 tracking-normal">Articles vendus</span></p>
+                                <p class="text-2xl font-black tracking-tighter tabular-nums text-green-500">{{ $deliveredArticlesCount }} <span class="text-xs uppercase text-green-500/50 tracking-normal">Livrés ✅</span></p>
+                            </div>
                         </div>
                         <div class="text-right">
                             <p class="text-[0.6rem] font-black text-white/40 uppercase tracking-widest mb-1">Chiffre d'affaires</p>
